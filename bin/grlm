@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+
+require_relative File.expand_path("../../lib/grlm", __FILE__)
+require 'docopt'
+
+command_name = File.basename(__FILE__)
+
+doc = <<DOCOPT
+#{command_name} - A small tool that lets you monitor the github rate limit value of a user
+
+Usage:
+  #{command_name} (-l <user> -p <password> | -t <token>) [-f <frequency>]
+  #{command_name} --version
+  #{command_name} -h | --help
+
+Options:
+-l <user>, --login <user>               the github username
+-p <password>, --password <password>    the user password
+-t <token>, --accesstoken <token>       an github accesstoken
+-f <frequency>, --frequency <frequency  refresh freqency [default: 10]
+--version                               print version
+-h, --help                              show this help message and exit
+
+DOCOPT
+
+options = nil
+begin
+  options = Docopt::docopt(doc, version:GRLM::VERSION, help:true)
+rescue Docopt::Exit => e
+  STDERR.puts e.message
+  exit 1
+end
+
+options = options.delete_if { |_key, value| !value }
+GRLM.dispatch options
