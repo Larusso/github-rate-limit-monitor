@@ -1,41 +1,48 @@
-# Github::Rate::Limit::Monitor
+Github Rate Limit Monitor
+=========================
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/github/rate/limit/monitor`. To experiment with that code, run `bin/console` for an interactive prompt.
+`grlm` is a small and funny commandline tool written in ruby.
+It polls the github api [rateLimit](https://developer.github.com/v3/rate_limit/) endpoint and fills a nice little progressbar.
 
-TODO: Delete this and the text above, and describe your gem
+![screencast](docs/grlm.gif)
 
-## Installation
+Usage
+-----
 
-Add this line to your application's Gemfile:
+```bash
+Usage:
+  grlm (-l <user> -p <password> | -t <token>) [-f <frequency>]
+  grlm --version
+  grlm -h | --help
 
-```ruby
-gem 'github-rate-limit-monitor'
+Options:
+-l <user>, --login <user>               the github username
+-p <password>, --password <password>    the user password
+-t <token>, --accesstoken <token>       an github accesstoken
+-f <frequency>, --frequency <frequency  refresh freqency [default: 10]
+--version                               print version
+-h, --help                              show this help message and exit
 ```
 
-And then execute:
+Installation
+------------
 
-    $ bundle
+### From Homebrew
 
-Or install it yourself as:
+```
+brew tap wooga/tools
+brew install grlm
+```
 
-    $ gem install github-rate-limit-monitor
+### From Source
 
-## Usage
+1. Git clone the repo and `cd` into the directory. 
+2. `bundle install`
+3. `gem build grlm.gemspec`
+4. `gem install grlm-1.0.0.gem`
 
-TODO: Write usage instructions here
+License
+-------
 
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/Manfred Endres/github-rate-limit-monitor.
-
-
-## License
-
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+[MIT License](http://opensource.org/licenses/MIT).
 
