@@ -1,15 +1,6 @@
-Github Rate Limit Monitor
-=========================
+extern crate grlm;
 
-`grlm` is a small and funny commandline tool written in rust.
-It polls the github api [rateLimit](https://developer.github.com/v3/rate_limit/) endpoint and fills a nice little progressbar.
-
-![screencast](docs/grlm.gif)
-
-Usage
------
-
-```bash
+const USAGE: &'static str = "
 grlm - github rate limit monitor
 
 Usage:
@@ -24,27 +15,14 @@ Options:
   -f <frequency>, --frequency <frequency>  refresh freqency [default: 10]
   -r <resource>, --resource <resource>     define which github resource to show
                                            Valid values: core, search, graphql [default: core]
+  --short                                  display rate limit in short format.
   -V, --version                            print version
   -h, --help                               show this help message and exit
-```
+";
 
-Installation
-------------
-
-### From Homebrew
-
-```
-brew tap wooga/tools
-brew install grlm
-```
-
-### From Source
-
-1. Git clone the repo and `cd` into the directory. 
-2. marke install
-
-License
--------
-
-[MIT License](http://opensource.org/licenses/MIT).
-
+fn main() {
+    let options = grlm::cli::get_options(USAGE);
+    if let Some(o) = options {
+        grlm::Monitor::start(o);
+    }
+}
