@@ -4,6 +4,7 @@ use docopt::Docopt;
 use libc;
 use std::convert::From;
 use std::fmt;
+use std::time::Duration;
 
 #[derive(Debug, Deserialize)]
 struct Arguments {
@@ -30,7 +31,7 @@ impl fmt::Display for Resource {
 
 #[derive(Debug)]
 pub struct Options {
-    pub frequency: u64,
+    pub frequency: Duration,
     pub auth: AuthType,
     pub resource: Resource,
     pub is_tty: bool,
@@ -53,14 +54,14 @@ impl From<Arguments> for Options {
 
         Options {
           resource: item.flag_resource,
-          frequency: item.flag_frequency,
+          frequency: Duration::from_secs(item.flag_frequency),
           auth: auth,
           is_tty: is_tty(),
         }
     }
 }
 
-fn is_tty() -> bool {
+pub fn is_tty() -> bool {
     let tty = unsafe { libc::isatty(libc::STDOUT_FILENO as i32) } != 0;
     tty
 }

@@ -21,8 +21,8 @@ Options:
 ";
 
 fn main() {
-    let options = grlm::cli::get_options(USAGE);
-    if let Some(o) = options {
-        grlm::Monitor::start(o);
-    }
+  let options = grlm::cli::get_options(USAGE);
+  if let Some(o) = options {
+    grlm::Monitor::start(o);
+  }
 }

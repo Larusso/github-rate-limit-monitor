@@ -30,7 +30,8 @@ use std::time::{Duration, Instant};
 struct MonitorState {
     bar: ProgressBar,
     rate_limit: Option<RateLimitResult>,
-    poll_frequency: u64,
+    poll_frequency: Duration,
+    last_update: Instant,
     auth: AuthType,
     resource: Resource,
 }
@@ -64,7 +65,7 @@ impl RateLimit {
 }
 
 impl Monitor {
-    fn new(args : cli::Options) -> Monitor {
+    pub fn new(args : cli::Options) -> Monitor {
         let f = args.frequency;
         let auth = args.auth;
         let resource = args.resource;
@@ -84,42 +85,42 @@ impl Monitor {
                 bar: bar,
                 rate_limit: None,
                 poll_frequency: f,
+                last_update: Instant::now() - (f * 2),
                 auth: auth,
                 resource: resource,
             })),
         }
     }
 
-    pub fn start_ticker(&self) {
-        let tick = Duration::from_secs(self.state.read().poll_frequency);
-        let mut instant = Instant::now();
-        let mut first_run = true;
-        loop {
-            if first_run || instant.elapsed() >= tick
-            {
-                first_run = false;
-                let mut state = self.state.write();
-                match fetch_rate_limit(&state.auth) {
-                    Ok(r) => state.rate_limit = Some(r),
-                    Err(e) => println!("Error {}", e),
-                }
-                instant = Instant::now();
+    pub fn tick(&self, force_update : bool) {
+        if force_update || self.state.read().last_update.elapsed() >= self.state.read().poll_frequency {
+            let mut state = self.state.write();
+            match fetch_rate_limit(&state.auth) {
+                Ok(r) => state.rate_limit = Some(r),
+                Err(e) => println!("Error {}", e),
             }
-            if let Some(ref r) = self.state.read().rate_limit {
-                let rate = match self.state.read().resource {
-                    Resource::Core => &r.resources.core,
-                    Resource::Search => &r.resources.search,
-                    Resource::Graphql => &r.resources.graphql,
-                };
+            state.last_update = Instant::now();
+        }
+        if let Some(ref r) = self.state.read().rate_limit {
+            let rate = match self.state.read().resource {
+                Resource::Core => &r.resources.core,
+                Resource::Search => &r.resources.search,
+                Resource::Graphql => &r.resources.graphql,
+            };
 
-                let ref bar = self.state.read().bar;
-                bar.set_length(rate.limit);
-                bar.set_message(&format!("resets in {}",rate.resets_in()));
-                bar.set_position(rate.limit - rate.remaining);
-                bar.set_style(ProgressStyle::default_bar()
-                   .template(&format!("{{prefix:.bold}} {{pos:.{}}} {{wide_bar:.{}}} of {{len}} {{msg:.{}}} ", rate.rate_color(), "yellow", rate.message_color()))
-                   .progress_chars(rate.progress_chars()));
-            }
+            let ref bar = self.state.read().bar;
+            bar.set_length(rate.limit);
+            bar.set_message(&format!("resets in {}",rate.resets_in()));
+            bar.set_position(rate.limit - rate.remaining);
+            bar.set_style(ProgressStyle::default_bar()
+               .template(&format!("{{prefix:.bold}} {{pos:.{}}} {{wide_bar:.{}}} of {{len}} {{msg:.{}}} ", rate.rate_color(), "yellow", rate.message_color()))
+               .progress_chars(rate.progress_chars()));
+        }
+    }
+
+    pub fn start_ticker(&self) {
+        loop {
+            self.tick(false);
             thread::sleep(Duration::from_millis(1000/30));
         }
     }
