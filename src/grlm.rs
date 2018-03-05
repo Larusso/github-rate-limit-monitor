@@ -33,6 +33,7 @@ struct MonitorState {
     poll_frequency: Duration,
     last_update: Instant,
     auth: AuthType,
+    short: bool,
     resource: Resource,
 }
 
@@ -75,9 +76,16 @@ impl Monitor {
         };
         let bar = ProgressBar::new(initial_length);
         bar.set_draw_target(ProgressDrawTarget::stderr_nohz());
-        bar.set_style(ProgressStyle::default_bar()
+        if args.short {
+            bar.set_style(ProgressStyle::default_bar()
+            .template(&format!("{{prefix:.bold}} {{pos}}/{{len}} {{msg.{}}} ", "yellow"))
+            .progress_chars(" \u{15E7}\u{FF65}"));
+        }
+        else {
+            bar.set_style(ProgressStyle::default_bar()
             .template(&format!("{{prefix:.bold}} {{pos}} {{wide_bar:.{}}} of {{len}} {{msg.{}}} ", "yellow", "yellow"))
             .progress_chars(" \u{15E7}\u{FF65}"));
+        }
 
         bar.set_prefix(&format!("Requests {}:", resource));
         Monitor {
@@ -88,6 +96,7 @@ impl Monitor {
                 last_update: Instant::now() - (f * 2),
                 auth: auth,
                 resource: resource,
+                short: args.short,
             })),
         }
     }
@@ -112,9 +121,16 @@ impl Monitor {
             bar.set_length(rate.limit);
             bar.set_message(&format!("resets in {}",rate.resets_in()));
             bar.set_position(rate.limit - rate.remaining);
-            bar.set_style(ProgressStyle::default_bar()
+            if self.state.read().short {
+                bar.set_style(ProgressStyle::default_bar()
+                .template(&format!("{{prefix:.bold}} {{pos:.{}}}/{{len}} {{msg:.{}}} ", rate.rate_color(), rate.message_color()))
+                .progress_chars(" \u{15E7}\u{FF65}"));
+            }
+            else {
+                bar.set_style(ProgressStyle::default_bar()
                .template(&format!("{{prefix:.bold}} {{pos:.{}}} {{wide_bar:.{}}} of {{len}} {{msg:.{}}} ", rate.rate_color(), "yellow", rate.message_color()))
                .progress_chars(rate.progress_chars()));
+            }
         }
     }
 

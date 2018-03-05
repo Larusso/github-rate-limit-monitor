@@ -35,6 +35,7 @@ pub struct Options {
     pub auth: AuthType,
     pub resource: Resource,
     pub is_tty: bool,
+    pub short: bool,
 }
 
 impl From<Arguments> for Options {
@@ -56,6 +57,7 @@ impl From<Arguments> for Options {
           resource: item.flag_resource,
           frequency: Duration::from_secs(item.flag_frequency),
           auth: auth,
+          short: item.flag_short,
           is_tty: is_tty(),
         }
     }
