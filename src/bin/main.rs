@@ -4,7 +4,7 @@ const USAGE: &'static str = "
 grlm - github rate limit monitor
 
 Usage:
-  grlm [(-l <user> -p <password> | -t <token>)] [options]
+  grlm [(-l <user> -p <password> | -t <token>)] [--short | --progress] [options]
   grlm --version
   grlm -h | --help
 
@@ -16,6 +16,7 @@ Options:
   -r <resource>, --resource <resource>     define which github resource to show
                                            Valid values: core, search, graphql [default: core]
   --short                                  display rate limit in short format.
+  --progress                               display rate limit as progressbar [default].
   -V, --version                            print version
   -h, --help                               show this help message and exit
 ";

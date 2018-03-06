@@ -1,5 +1,5 @@
 use github::AuthType;
-
+use output::OutputStyle;
 use docopt::Docopt;
 use libc;
 use std::convert::From;
@@ -13,6 +13,7 @@ struct Arguments {
     flag_access_token: Option<String>,
     flag_frequency: u64,
     flag_short: bool,
+    flag_progress: bool,
     flag_resource: Resource,
 }
 
@@ -35,7 +36,7 @@ pub struct Options {
     pub auth: AuthType,
     pub resource: Resource,
     pub is_tty: bool,
-    pub short: bool,
+    pub output_style: OutputStyle,
 }
 
 impl From<Arguments> for Options {
@@ -57,7 +58,11 @@ impl From<Arguments> for Options {
           resource: item.flag_resource,
           frequency: Duration::from_secs(item.flag_frequency),
           auth: auth,
-          short: item.flag_short,
+          output_style: if item.flag_short {
+              OutputStyle::Short
+          } else {
+              OutputStyle::Progress
+          },
           is_tty: is_tty(),
         }
     }
