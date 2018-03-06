@@ -12,6 +12,30 @@ pub struct Output {
     style: OutputStyle
 }
 
+impl RateLimit {
+    fn progress_chars(&self) -> &'static str {
+        match self.remaining {
+            x if x == 0 => "#####",
+            _ => " \u{15E7}\u{FF65}",
+        }
+    }
+
+    fn rate_color(&self) -> &'static str {
+        match (self.remaining as f64) / (self.limit as f64) {
+            x if x <= 0.08 => "red",
+            x if x <= 0.5 => "yellow",
+            _ => "green"
+        }
+    }
+
+    fn message_color(&self) -> &'static str {
+        match self.resets_in() {
+            x if x < 120 => "green",
+            _ => "white"
+        }
+    }
+}
+
 impl Output {
     pub fn new(style: OutputStyle, initial_length :u64, resource: &Resource) -> Output {
 

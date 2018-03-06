@@ -16,7 +16,7 @@ mod output;
 
 pub mod cli;
 use self::cli::Resource;
-use self::github::{AuthType, RateLimitResult, RateLimit, fetch_rate_limit};
+use self::github::{AuthType, RateLimitResult, fetch_rate_limit};
 use self::output::Output;
 
 use parking_lot::{RwLock};
@@ -36,30 +36,6 @@ struct MonitorState {
 
 pub struct Monitor {
     state: Arc<RwLock<MonitorState>>,
-}
-
-impl RateLimit {
-    fn progress_chars(&self) -> &'static str {
-        match self.remaining {
-            x if x == 0 => "#####",
-            _ => " \u{15E7}\u{FF65}",
-        }
-    }
-
-    fn rate_color(&self) -> &'static str {
-        match (self.remaining as f64) / (self.limit as f64) {
-            x if x <= 0.08 => "red",
-            x if x <= 0.5 => "yellow",
-            _ => "green"
-        }
-    }
-
-    fn message_color(&self) -> &'static str {
-        match self.resets_in() {
-            x if x < 120 => "green",
-            _ => "white"
-        }
-    }
 }
 
 impl Monitor {
